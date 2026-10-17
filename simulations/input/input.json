@@ -12,19 +12,19 @@
     "engine": {
         "mesh": {
             "nodes": {
-                "Nx": 40,
-                "Ny": 40
+                "Nx": 80,
+                "Ny": 80
             }
         },
         "method": {
-            "type": "SIMPLE",
-            "tolerance": 1e-05,
+            "type": "SGQS",
+            "tolerance": 1e-07,
             "maxIter": 3000,
             "args": {
                 "under_relaxation": {
-                    "u": 0.05,
-                    "v": 0.05,
-                    "p": 0.03
+                    "u": 0.7,
+                    "v": 0.7,
+                    "p": 0.3
                 },
                 "number_of_sweeps": {
                     "u": 4,

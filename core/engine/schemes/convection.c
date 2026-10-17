@@ -8,6 +8,29 @@
 #include "libs/cALGEBRA/cVEC.h"
 #include "schemes.h"
 
+/**
+ * A_P as the sum of the neighbour coefficients (as in Table 1 of the report).
+ *
+ * The raw coefficient of phi_P is A_P = sum(A_nb) + (Fe - Fw + Fn - Fs): the net mass flux of the advecting
+ * field is zero only once that field is divergence free. During the iterations it is not, and it can make A_P
+ * collapse below sum(A_nb) (even to ~0 where the flow converges), so that the update amplifies the error
+ * by sum(A_nb) / A_P and the solver blows up as soon as the Reynolds number is not small.
+ */
+static void CFD_Scheme_Convection_Set_Ap_PP(cVEC_t *Ap)
+{
+    double sum = 0.0;
+
+    for (uint16_t k = 0; k < Ap->length; k++)
+    {
+        if (k != PP)
+        {
+            sum += Ap->data[k];
+        }
+    }
+
+    Ap->data[PP] = sum;
+}
+
 void CFD_Setup_Convection(CFD_t *cfd)
 {
     switch (cfd->engine->schemes->convection->type)
@@ -107,7 +130,7 @@ void CFD_Scheme_Convection_UDS(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[WNN] = 0.0;
     Ap->data[PSS] = 0.0;
     Ap->data[PS] = fmax(0.0, F->s);
-    Ap->data[PP] = fmax(0.0, F->e) + fmax(0.0, F->n) - fmin(0.0, F->s) - fmin(0.0, F->w);
+    Ap->data[PP] = 0.0; // sum of the neighbours, set below
     Ap->data[PN] = -fmin(0.0, F->n);
     Ap->data[PNN] = 0.0;
     Ap->data[ESS] = 0.0;
@@ -120,6 +143,8 @@ void CFD_Scheme_Convection_UDS(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[EEP] = 0.0;
     Ap->data[EEN] = 0.0;
     Ap->data[EENN] = 0.0;
+
+    CFD_Scheme_Convection_Set_Ap_PP(Ap);
 }
 
 void CFD_Scheme_Convection_CDS(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
@@ -141,7 +166,7 @@ void CFD_Scheme_Convection_CDS(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[WNN] = 0.0;
     Ap->data[PSS] = 0.0;
     Ap->data[PS] = F->s / 2.0;
-    Ap->data[PP] = F->e / 2.0 + F->n / 2.0 - F->s / 2.0 - F->w / 2.0;
+    Ap->data[PP] = 0.0; // sum of the neighbours, set below
     Ap->data[PN] = -F->n / 2.0;
     Ap->data[PNN] = 0.0;
     Ap->data[ESS] = 0.0;
@@ -154,6 +179,8 @@ void CFD_Scheme_Convection_CDS(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[EEP] = 0.0;
     Ap->data[EEN] = 0.0;
     Ap->data[EENN] = 0.0;
+
+    CFD_Scheme_Convection_Set_Ap_PP(Ap);
 }
 
 void CFD_Scheme_Convection_QUICK(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
@@ -175,7 +202,7 @@ void CFD_Scheme_Convection_QUICK(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[WNN] = 0.0;
     Ap->data[PSS] = -1.0 / 8.0 * fmax(0.0, F->s);
     Ap->data[PS] = 1.0 / 8.0 * fmax(0.0, F->n) + 3.0 / 4.0 * fmax(0.0, F->s) + 3.0 / 8.0 * fmin(0.0, F->s);
-    Ap->data[PP] = 3.0 / 4.0 * fmax(0.0, F->e) + 3.0 / 8.0 * fmin(0.0, F->e) + 3.0 / 4.0 * fmax(0.0, F->n) + 3.0 / 8.0 * fmin(0.0, F->n) - 3.0 / 8.0 * fmax(0.0, F->s) - 3.0 / 4.0 * fmin(0.0, F->s) - 3.0 / 8.0 * fmax(0.0, F->w) - 3.0 / 4.0 * fmin(0.0, F->w);
+    Ap->data[PP] = 0.0; // sum of the neighbours, set below
     Ap->data[PN] = 1.0 / 8.0 * (-3.0) * fmax(0.0, F->n) - 3.0 / 4.0 * fmin(0.0, F->n) - 1.0 / 8.0 * fmin(0.0, F->s);
     Ap->data[PNN] = 1.0 / 8.0 * fmin(0.0, F->n);
     Ap->data[ESS] = 0.0;
@@ -188,6 +215,8 @@ void CFD_Scheme_Convection_QUICK(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)
     Ap->data[EEP] = 1.0 / 8.0 * fmin(0.0, F->e);
     Ap->data[EEN] = 0.0;
     Ap->data[EENN] = 0.0;
+
+    CFD_Scheme_Convection_Set_Ap_PP(Ap);
 }
 
 void CFD_Scheme_Convection_HYBRID(CFD_t *cfd, uint16_t i, uint16_t j, phi_t phi)

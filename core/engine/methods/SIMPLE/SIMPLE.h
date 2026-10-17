@@ -35,6 +35,13 @@ typedef struct
     cMAT2D_t *pp;
 } SIMPLE_state_t;
 
+// Diagonal of the implicit momentum operator (UDS convection + 2nd order diffusion), see CFD_SIMPLE_U_Compute_Coefficients
+typedef struct
+{
+    cMAT2D_t *u;
+    cMAT2D_t *v;
+} SIMPLE_diagonal_t;
+
 typedef struct
 {
     float u;
@@ -54,6 +61,7 @@ typedef struct SIMPLE_t
     SIMPLE_residual_t *residual;
     SIMPLE_Ap_coefficients_t *Ap_coefficients;
     SIMPLE_state_t *state;
+    SIMPLE_diagonal_t *diagonal;
     SIMPLE_number_of_sweeps_t *number_of_sweeps;
     SIMPLE_under_relaxation_t *under_relaxation;
 } SIMPLE_t;

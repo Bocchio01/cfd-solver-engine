@@ -4,21 +4,21 @@ close all
 
 fileNames = {
     % 'result'
-    'output'
-    % '00_40_40_100_UDS_SECOND_08_08'
-    % '01_40_40_400_UDS_SECOND_008_008'
-    % '02_40_40_1000_UDS_SECOND_008_008'
-    % '03_40_40_1000_CDS_SECOND_008_008'
-    % '04_40_40_1000_QUICK_SECOND_008_008'
-    % '05_80_80_1000_UDS_SECOND_008_008'
-    % '06_80_80_1000_CDS_SECOND_008_008'
-    % '07_80_80_1000_QUICK_SECOND_008_008'
-    % '08_129_129_1000_UDS_SECOND_008_008'
-    % '09_129_129_1000_CDS_SECOND_008_008'
-    % '10_129_129_1000_QUICK_SECOND_008_008'
-    % '11_129_129_1000_UDS_FOURTH_008_008'
-    % '12_129_129_1000_CDS_FOURTH_008_008'
-    % '13_129_129_1000_QUICK_FOURTH_008_008'
+    % 'output'
+    % '00_40_40_100_UDS_SECOND_07_07',
+    % '01_40_40_400_UDS_SECOND_07_07',
+    % '02_40_40_1000_UDS_SECOND_07_07',
+    % '03_40_40_1000_CDS_SECOND_07_07',
+    % '04_40_40_1000_QUICK_SECOND_07_07',
+    % '05_80_80_1000_UDS_SECOND_07_07',
+    % '06_80_80_1000_CDS_SECOND_07_07',
+    % '07_80_80_1000_QUICK_SECOND_07_07',
+    % '08_129_129_1000_UDS_SECOND_07_07',
+    '09_129_129_1000_CDS_SECOND_07_07',
+    % '10_129_129_1000_QUICK_SECOND_07_07',
+    % '11_129_129_1000_UDS_FOURTH_07_07',
+    % '12_129_129_1000_CDS_FOURTH_07_07',
+    % '13_129_129_1000_QUICK_FOURTH_07_07',
     };
 
 plots = true * [1 0];
@@ -74,35 +74,35 @@ if(plots(1) == true)
 
 
         %% Plot states distribution
-
-        figure_state_distribution = figure( ...
-            'Name', 'States distribution', ...
-            'NumberTitle', 'off', ...
-            'Position', [100, 100, 1500, 600]);
-        t = tiledlayout(1, 3);
-        title(t, strrep(fileNames{file_idx}, '_', '-'))
-
-        states_name = ["P", "U", "V"];
-        states_matrix = {P, U, V};
-
-        for state_idx = 1:length(states_matrix)
-
-            nexttile
-            hold on
-            grid on
-
-            imagesc(X(1,:), Y(:,1), states_matrix{state_idx});
-
-            colorbar;
-            title(states_name(state_idx));
-            xlabel('X');
-            ylabel('Y');
-            axis equal;
-            axis(axis_limit);
-
-        end
-
-        clear state_idx states_name states_matrix
+        % 
+        % figure_state_distribution = figure( ...
+        %     'Name', 'States distribution', ...
+        %     'NumberTitle', 'off', ...
+        %     'Position', [100, 100, 1500, 600]);
+        % t = tiledlayout(1, 3);
+        % title(t, strrep(fileNames{file_idx}, '_', '-'))
+        % 
+        % states_name = ["P", "U", "V"];
+        % states_matrix = {P, U, V};
+        % 
+        % for state_idx = 1:length(states_matrix)
+        % 
+        %     nexttile
+        %     hold on
+        %     grid on
+        % 
+        %     imagesc(X(1,:), Y(:,1), states_matrix{state_idx});
+        % 
+        %     colorbar;
+        %     title(states_name(state_idx));
+        %     xlabel('X');
+        %     ylabel('Y');
+        %     axis equal;
+        %     axis(axis_limit);
+        % 
+        % end
+        % 
+        % clear state_idx states_name states_matrix
 
 
         %% Plot velocity by streamlines
@@ -111,18 +111,21 @@ if(plots(1) == true)
             'Name', 'Velocity visualization', ...
             'NumberTitle', 'off', ...
             'Position', [100, 100, 1500, 600]);
-        t = tiledlayout(1, 1);
+        t = tiledlayout(2, 2);
         title(t, strrep(fileNames{file_idx}, '_', '-'))
 
         % Streamlines
-        plot_streamline = nexttile;
+        plot_streamline = nexttile(1, [2, 1]);
         hold on
         grid on
 
-        pcolor(X, Y, sqrt(U.^2 + V.^2));
-        colorbar;
+        contourf(X, Y, sqrt(U.^2 + V.^2), 30);
+        colormap(jet);
+        colorbar
         shading interp;
-        
+
+
+        % Subsample for cleaner quiver plot        
         stream_obj = streamslice(X, Y, U, V, 3);
         set(stream_obj, ...
             'color', [0.0 0.0 0.0], ...
@@ -138,12 +141,12 @@ if(plots(1) == true)
 
         %% Plots for comparison with Ghia's solution
 
-        figure_ghia_comparison = figure( ...
-            'Name', 'Ghia solution comparison', ...
-            'NumberTitle', 'off', ...
-            'Position', [100, 100, 1500, 600]);
-        t = tiledlayout(1, 2);
-        title(t, strrep(fileNames{file_idx}, '_', '-'))
+        % figure_ghia_comparison = figure( ...
+        %     'Name', 'Ghia solution comparison', ...
+        %     'NumberTitle', 'off', ...
+        %     'Position', [100, 100, 1500, 600]);
+        % t = tiledlayout(1, 2);
+        % title(t, strrep(fileNames{file_idx}, '_', '-'))
 
         % Comparison of u component with Ghia's solution
         nexttile
@@ -190,7 +193,7 @@ if(plots(1) == true)
         disp(['Current visalized: ' fileNames{file_idx}])
         if (length(fileNames) > 1)
             disp('Press a key for the next result')
-            % pause;
+            pause;
         end
 
         if(exist('latex_img_path', 'var') == 1)

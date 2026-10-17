@@ -24,6 +24,7 @@ void CFD_SCGS(CFD_t *cfd, cJSON *args)
     {
         CFD_SCGS_Reset(scgs);
 
+        // Forward sweep (bottom-to-top, left-to-right)
         for (cfd->engine->method->index->j = cfd->engine->mesh->n_ghosts;
              cfd->engine->method->index->j < cfd->engine->mesh->nodes->Ny + cfd->engine->mesh->n_ghosts;
              cfd->engine->method->index->j++)
@@ -31,6 +32,28 @@ void CFD_SCGS(CFD_t *cfd, cJSON *args)
             for (cfd->engine->method->index->i = cfd->engine->mesh->n_ghosts;
                  cfd->engine->method->index->i < cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts;
                  cfd->engine->method->index->i++)
+            {
+
+                CFD_SCGS_System_Compose(cfd, scgs);
+
+                CFD_SCGS_BC_NoSlip_Normal(cfd, scgs);
+
+                CFD_SCGS_System_Solve(scgs);
+
+                CFD_SCGS_Apply_Correction(cfd, scgs);
+
+                CFD_SCGS_Update_Residual(scgs);
+            }
+        }
+
+        // Backward sweep (top-to-bottom, right-to-left) for symmetric Gauss-Seidel
+        for (cfd->engine->method->index->j = cfd->engine->mesh->nodes->Ny + cfd->engine->mesh->n_ghosts - 1;
+             cfd->engine->method->index->j >= cfd->engine->mesh->n_ghosts;
+             cfd->engine->method->index->j--)
+        {
+            for (cfd->engine->method->index->i = cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts - 1;
+                 cfd->engine->method->index->i >= cfd->engine->mesh->n_ghosts;
+                 cfd->engine->method->index->i--)
             {
 
                 CFD_SCGS_System_Compose(cfd, scgs);
@@ -156,10 +179,12 @@ void CFD_SCGS_System_Compose(CFD_t *cfd, SCGS_t *scgs)
     {
         scgs->vanka->R->data[el] = 0.0;
 
-        if (i == cfd->engine->mesh->n_ghosts ||
-            j == cfd->engine->mesh->n_ghosts ||
-            i == cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts - 1 ||
-            j == cfd->engine->mesh->nodes->Ny + cfd->engine->mesh->n_ghosts - 1)
+        // Use UDS near boundaries to avoid out-of-bounds access with QUICK scheme
+        // QUICK requires access to nodes at offset ±2, so we need 2-cell buffer
+        if (i <= cfd->engine->mesh->n_ghosts + 1 ||
+            j <= cfd->engine->mesh->n_ghosts + 1 ||
+            i >= cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts - 2 ||
+            j >= cfd->engine->mesh->nodes->Ny + cfd->engine->mesh->n_ghosts - 2)
         {
             CFD_Scheme_Convection_UDS(cfd, i + positions[el].i, j + positions[el].j, positions[el].phi);
             CFD_Scheme_Diffusion_SECOND(cfd);
@@ -214,7 +239,7 @@ void CFD_SCGS_System_Compose(CFD_t *cfd, SCGS_t *scgs)
         fabs(scgs->vanka->A->data[2][2]) < fabs(scgs->vanka->A->data[4][2]) ||
         fabs(scgs->vanka->A->data[3][3]) < fabs(scgs->vanka->A->data[4][3]))
     {
-        log_info("Matrix A is not diagonally dominant @ (it=%d, i=%d, j=%d)", cfd->engine->method->iteractions, i, j);
+        log_debug("Matrix A is not diagonally dominant @ (it=%d, i=%d, j=%d)", cfd->engine->method->iteractions, i, j);
     }
 }
 
@@ -258,7 +283,7 @@ void CFD_SCGS_Apply_Correction(CFD_t *cfd, SCGS_t *scgs)
     cfd->engine->method->state->u->data[j + 0][i + 0] += scgs->vanka->x->data[1];
     cfd->engine->method->state->v->data[j - 1][i + 0] += scgs->vanka->x->data[2];
     cfd->engine->method->state->v->data[j + 0][i + 0] += scgs->vanka->x->data[3];
-    cfd->engine->method->state->p->data[j + 0][i + 0] += scgs->vanka->x->data[4];
+    cfd->engine->method->state->p->data[j + 0][i + 0] += scgs->under_relaxation->p * scgs->vanka->x->data[4];
 }
 
 void CFD_SCGS_Update_Residual(SCGS_t *scgs)

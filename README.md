@@ -1,5 +1,5 @@
-> [!CAUTION]
-> Unfortunately, the code still doesn't work properly (needs for too low under-relaxation factors for convergence).
+<!-- > [!CAUTION]
+> Unfortunately, the code still doesn't work properly (needs for too low under-relaxation factors for convergence). -->
 
 # Lid-driven cavity incompressible flow (steady state)
 
@@ -61,16 +61,30 @@ The code reads the input parameters from a file in JSON format.
             }
         },
         "method": {
-            "tolerance": 1e-05,
-            "maxIter": 5000,
-            "under_relaxation": {
-                "u": 0.08,
-                "v": 0.08
+            "type": "SGQS",
+            "tolerance": 1e-07,
+            "maxIter": 3000,
+            "args": {
+                "under_relaxation": {
+                    "u": 0.7,
+                    "v": 0.7,
+                    "p": 0.3
+                },
+                "number_of_sweeps": {
+                    "u": 4,
+                    "v": 4,
+                    "p": 8
+                }
             }
         },
         "schemes": {
-            "convection": "QUICK",
+            "convection": "UDS",
             "diffusion": "SECOND"
+        }
+    },
+    "out": {
+        "file": {
+            "name": "output"
         }
     }
 }

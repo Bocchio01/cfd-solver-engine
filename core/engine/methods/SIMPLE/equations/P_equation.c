@@ -22,10 +22,10 @@ void CFD_SIMPLE_P_Compute_Coefficients(CFD_t *cfd, SIMPLE_t *simple)
              i < cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts;
              i++)
         {
-            simple->Ap_coefficients->pp->data[j][i][EP] = cfd->engine->mesh->element->size->dy * cfd->engine->mesh->element->size->dy / simple->Ap_coefficients->u->data[j + 0][i + 0][PP];
-            simple->Ap_coefficients->pp->data[j][i][WP] = cfd->engine->mesh->element->size->dy * cfd->engine->mesh->element->size->dy / simple->Ap_coefficients->u->data[j + 0][i - 1][PP];
-            simple->Ap_coefficients->pp->data[j][i][PN] = cfd->engine->mesh->element->size->dx * cfd->engine->mesh->element->size->dx / simple->Ap_coefficients->v->data[j + 0][i + 0][PP];
-            simple->Ap_coefficients->pp->data[j][i][PS] = cfd->engine->mesh->element->size->dx * cfd->engine->mesh->element->size->dx / simple->Ap_coefficients->v->data[j - 1][i + 0][PP];
+            simple->Ap_coefficients->pp->data[j][i][EP] = simple->under_relaxation->u * cfd->engine->mesh->element->size->dy * cfd->engine->mesh->element->size->dy / simple->diagonal->u->data[j + 0][i + 0];
+            simple->Ap_coefficients->pp->data[j][i][WP] = simple->under_relaxation->u * cfd->engine->mesh->element->size->dy * cfd->engine->mesh->element->size->dy / simple->diagonal->u->data[j + 0][i - 1];
+            simple->Ap_coefficients->pp->data[j][i][PN] = simple->under_relaxation->v * cfd->engine->mesh->element->size->dx * cfd->engine->mesh->element->size->dx / simple->diagonal->v->data[j + 0][i + 0];
+            simple->Ap_coefficients->pp->data[j][i][PS] = simple->under_relaxation->v * cfd->engine->mesh->element->size->dx * cfd->engine->mesh->element->size->dx / simple->diagonal->v->data[j - 1][i + 0];
         }
     }
 }
@@ -90,6 +90,16 @@ void CFD_SIMPLE_P_Compute_State(CFD_t *cfd, SIMPLE_t *simple)
     double sum;
     int nb_i;
     int nb_j;
+
+    // p' is a correction of the current outer iteration: the initial guess must always be zero.
+    // Reusing the previous p' would apply the same correction over and over (it diverges).
+    for (j = 0; j < simple->state->pp->rows; j++)
+    {
+        for (i = 0; i < simple->state->pp->cols; i++)
+        {
+            simple->state->pp->data[j][i] = 0.0;
+        }
+    }
 
     for (uint8_t sweep = 0; sweep < simple->number_of_sweeps->pp; sweep++)
     {

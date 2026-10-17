@@ -38,7 +38,12 @@ void CFD_SIMPLE(CFD_t *cfd, cJSON *args)
         // MAT2D_Print_States(cfd->engine->method->state->v);
         // MAT2D_Print_States(cfd->engine->method->state->p);
 
-        cfd->engine->method->residual->data[cfd->engine->method->iteractions] = 0.0;
+        // Convergence monitor (same norm as SCGS and as Eq. 161 of the report):
+        // sum over the whole domain of the absolute value of the (signed) residuals.
+        double residual_u = 0.0;
+        double residual_v = 0.0;
+        double residual_p = 0.0;
+
         for (uint16_t j = cfd->engine->mesh->n_ghosts;
              j < cfd->engine->mesh->nodes->Ny + cfd->engine->mesh->n_ghosts;
              j++)
@@ -47,10 +52,21 @@ void CFD_SIMPLE(CFD_t *cfd, cJSON *args)
                  i < cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts;
                  i++)
             {
-                cfd->engine->method->residual->data[cfd->engine->method->iteractions] = fmax(
-                    cfd->engine->method->residual->data[cfd->engine->method->iteractions],
-                    fmax(fmax(simple->residual->u->data[j][i], simple->residual->v->data[j][i]), simple->residual->p->data[j][i]));
+                residual_u += fabs(simple->residual->u->data[j][i]);
+                residual_v += fabs(simple->residual->v->data[j][i]);
+                residual_p += fabs(simple->residual->p->data[j][i]);
             }
+        }
+
+        // fmax() silently discards a NaN, so a diverged field would look "converged" (residual = 0):
+        // the NaN is propagated explicitly.
+        if (isnan(residual_u) || isnan(residual_v) || isnan(residual_p))
+        {
+            cfd->engine->method->residual->data[cfd->engine->method->iteractions] = NAN;
+        }
+        else
+        {
+            cfd->engine->method->residual->data[cfd->engine->method->iteractions] = fmax(fmax(residual_u, residual_v), residual_p);
         }
 
         // printf("Residual: %.10f\n", cfd->engine->method->residual->data[cfd->engine->method->iteractions]);
@@ -93,12 +109,14 @@ SIMPLE_t *CFD_SIMPLE_Allocate(CFD_t *cfd, cJSON *args)
     {
         simple->residual = (SIMPLE_residual_t *)malloc(sizeof(SIMPLE_residual_t));
         simple->state = (SIMPLE_state_t *)malloc(sizeof(SIMPLE_state_t));
+        simple->diagonal = (SIMPLE_diagonal_t *)malloc(sizeof(SIMPLE_diagonal_t));
         simple->Ap_coefficients = (SIMPLE_Ap_coefficients_t *)malloc(sizeof(SIMPLE_Ap_coefficients_t));
         simple->number_of_sweeps = (SIMPLE_number_of_sweeps_t *)malloc(sizeof(SIMPLE_number_of_sweeps_t));
         simple->under_relaxation = (SIMPLE_under_relaxation_t *)malloc(sizeof(SIMPLE_under_relaxation_t));
 
         if (simple->residual != NULL &&
             simple->state != NULL &&
+            simple->diagonal != NULL &&
             simple->Ap_coefficients != NULL &&
             simple->number_of_sweeps != NULL &&
             simple->under_relaxation != NULL)
@@ -106,6 +124,9 @@ SIMPLE_t *CFD_SIMPLE_Allocate(CFD_t *cfd, cJSON *args)
             simple->state->u = MAT2D_Init(rows, cols);
             simple->state->v = MAT2D_Init(rows, cols);
             simple->state->pp = MAT2D_Init(rows, cols);
+
+            simple->diagonal->u = MAT2D_Init(rows, cols);
+            simple->diagonal->v = MAT2D_Init(rows, cols);
 
             simple->residual->u = MAT2D_Init(rows, cols);
             simple->residual->v = MAT2D_Init(rows, cols);
@@ -123,7 +144,11 @@ SIMPLE_t *CFD_SIMPLE_Allocate(CFD_t *cfd, cJSON *args)
             simple->under_relaxation->v = (float)(cJSON_IsNumber(v_urf) ? cJSON_GetNumberValue(v_urf) : DEFAULT_ENGINE_METHOD_UNDER_RELAXATION_V);
             simple->under_relaxation->p = (float)(cJSON_IsNumber(p_urf) ? cJSON_GetNumberValue(p_urf) : DEFAULT_ENGINE_METHOD_UNDER_RELAXATION_P);
 
-            const cJSON *sweeps = cJSON_GetObjectItemCaseSensitive(args, "sweeps");
+            const cJSON *sweeps = cJSON_GetObjectItemCaseSensitive(args, "number_of_sweeps");
+            if (!cJSON_IsObject(sweeps))
+            {
+                sweeps = cJSON_GetObjectItemCaseSensitive(args, "sweeps");
+            }
             const cJSON *u_sweep = cJSON_GetObjectItemCaseSensitive(sweeps, "u");
             const cJSON *v_sweep = cJSON_GetObjectItemCaseSensitive(sweeps, "v");
             const cJSON *pp_sweep = cJSON_GetObjectItemCaseSensitive(sweeps, "p");
@@ -144,8 +169,11 @@ void CFD_SIMPLE_Free(SIMPLE_t *simple)
     MAT2D_Free(simple->state->u);
     MAT2D_Free(simple->state->v);
     MAT2D_Free(simple->state->pp);
+    MAT2D_Free(simple->diagonal->u);
+    MAT2D_Free(simple->diagonal->v);
     free(simple->residual);
     free(simple->state);
+    free(simple->diagonal);
     free(simple);
 }
 

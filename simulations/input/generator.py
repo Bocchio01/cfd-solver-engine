@@ -24,13 +24,14 @@ def generate_json(input_string):
                 }
             },
             "method": {
+                "type": "SIMPLE",
                 "tolerance": 1e-5,
                 "maxIter": 5000,
                 "args": {
                     "under_relaxation": {
                         "u": float(under_relax_u) / (10**(len(under_relax_u)-1)),
                         "v": float(under_relax_v) / (10**(len(under_relax_v)-1)),
-                        "p": 0.03
+                        "p": 0.3
                     },
                     "number_of_sweeps": {
                         "u": 4,
@@ -54,20 +55,20 @@ def save_json(data, filename):
 
 if __name__ == "__main__":
     file_names = [
-        "40_40_100_UDS_SECOND_08_08",
-        "40_40_400_UDS_SECOND_008_008",
-        "40_40_1000_UDS_SECOND_008_008",
-        "40_40_1000_CDS_SECOND_008_008",
-        "40_40_1000_QUICK_SECOND_008_008",
-        "80_80_1000_UDS_SECOND_008_008",
-        "80_80_1000_CDS_SECOND_008_008",
-        "80_80_1000_QUICK_SECOND_008_008",
-        "129_129_1000_UDS_SECOND_008_008",
-        "129_129_1000_CDS_SECOND_008_008",
-        "129_129_1000_QUICK_SECOND_008_008",
-        "129_129_1000_UDS_FOURTH_008_008",
-        "129_129_1000_CDS_FOURTH_008_008",
-        "129_129_1000_QUICK_FOURTH_008_008",
+        "40_40_100_UDS_SECOND_07_07",
+        "40_40_400_UDS_SECOND_07_07",
+        "40_40_1000_UDS_SECOND_07_07",
+        "40_40_1000_CDS_SECOND_07_07",
+        "40_40_1000_QUICK_SECOND_07_07",
+        "80_80_1000_UDS_SECOND_07_07",
+        "80_80_1000_CDS_SECOND_07_07",
+        "80_80_1000_QUICK_SECOND_07_07",
+        "129_129_1000_UDS_SECOND_07_07",
+        "129_129_1000_CDS_SECOND_07_07",
+        "129_129_1000_QUICK_SECOND_07_07",
+        "129_129_1000_UDS_FOURTH_07_07",
+        "129_129_1000_CDS_FOURTH_07_07",
+        "129_129_1000_QUICK_FOURTH_07_07",
     ]
 
     for filename in os.listdir('.'):

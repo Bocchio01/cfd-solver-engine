@@ -25,6 +25,13 @@ void CFD_SIMPLE_U_Compute_Coefficients(CFD_t *cfd, SIMPLE_t *simple)
             i = cfd->engine->method->index->i;
             j = cfd->engine->method->index->j;
 
+            // Diagonal of the implicit operator: UDS convection + 2nd order diffusion. It is always dominant, while the
+            // diagonal of QUICK/CDS can be small or even negative at high cell Peclet numbers: QUICK/CDS enter only
+            // through the neighbour coefficients of the residual (deferred correction).
+            CFD_Scheme_Convection_UDS(cfd, i, j, u);
+            CFD_Scheme_Diffusion_SECOND(cfd);
+            simple->diagonal->u->data[j][i] = cfd->engine->schemes->convection->coefficients->data[PP] + cfd->engine->schemes->diffusion->coefficients->data[PP];
+
             if (i == cfd->engine->mesh->n_ghosts ||
                 j == cfd->engine->mesh->n_ghosts ||
                 i == cfd->engine->mesh->nodes->Nx + cfd->engine->mesh->n_ghosts - 1 ||
@@ -110,6 +117,10 @@ void CFD_SIMPLE_U_Compute_State(CFD_t *cfd, SIMPLE_t *simple)
     uint16_t j;
     double sum;
 
+    // u of the previous outer iteration: it is the reference of the under-relaxation for every sweep.
+    // Relaxing towards the value of the previous sweep would make the relaxation fade as the sweeps accumulate.
+    MAT2D_Copy(cfd->engine->method->state->u, simple->state->u);
+
     for (uint8_t sweep = 0; sweep < simple->number_of_sweeps->u; sweep++)
     {
 
@@ -135,7 +146,10 @@ void CFD_SIMPLE_U_Compute_State(CFD_t *cfd, SIMPLE_t *simple)
                 }
 
                 sum += (CFD_Get_State(cfd, p, i, j) - CFD_Get_State(cfd, p, i + 1, j)) * cfd->engine->mesh->element->size->dy;
-                cfd->engine->method->state->u->data[j][i] = simple->under_relaxation->u * (sum / simple->Ap_coefficients->u->data[j][i][PP]) + (1.0 - simple->under_relaxation->u) * CFD_Get_State(cfd, u, i, j);
+
+                // Gauss-Seidel update with the diagonal of the implicit operator (for UDS it is A_P, so this is sum / A_P)
+                sum -= simple->Ap_coefficients->u->data[j][i][PP] * CFD_Get_State(cfd, u, i, j);
+                cfd->engine->method->state->u->data[j][i] = simple->under_relaxation->u * (CFD_Get_State(cfd, u, i, j) + sum / simple->diagonal->u->data[j][i]) + (1.0 - simple->under_relaxation->u) * simple->state->u->data[j][i];
             }
         }
     }
@@ -158,7 +172,7 @@ void CFD_SIMPLE_U_Compute_Correct_States(CFD_t *cfd, SIMPLE_t *simple)
             i = cfd->engine->method->index->i;
             j = cfd->engine->method->index->j;
 
-            u_prime = cfd->engine->mesh->element->size->dy / simple->Ap_coefficients->u->data[j][i][PP] * (simple->state->pp->data[j][i] - simple->state->pp->data[j][i + 1]);
+            u_prime = cfd->engine->mesh->element->size->dy / simple->diagonal->u->data[j][i] * (simple->state->pp->data[j][i] - simple->state->pp->data[j][i + 1]);
             cfd->engine->method->state->u->data[j][i] = CFD_Get_State(cfd, u, i, j) + simple->under_relaxation->u * u_prime;
         }
     }
