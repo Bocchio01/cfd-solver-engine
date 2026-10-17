@@ -29,11 +29,12 @@ var searchData=
   ['default_5fout_5ffile_5fname_26',['DEFAULT_OUT_FILE_NAME',['../CFD_8h.html#a639870ee95a9441a50540bff7da9c6d6',1,'CFD.h']]],
   ['default_5fout_5ffile_5fpath_27',['DEFAULT_OUT_FILE_PATH',['../CFD_8h.html#af80dc54bdb885f6a1542529219217584',1,'CFD.h']]],
   ['depth_28',['depth',['../structprintbuffer.html#a820c167ceaaa9759b0ca2695d22db55c',1,'printbuffer::depth()'],['../structparse__buffer.html#a820c167ceaaa9759b0ca2695d22db55c',1,'parse_buffer::depth()'],['../structcMAT3D__t.html#ad7ad9c50519856588dcfdfbc4d067d15',1,'cMAT3D_t::depth()']]],
-  ['diffusion_29',['diffusion',['../structschemes__t.html#aefbf0133de3eb08c664ebd7294dc2314',1,'schemes_t']]],
-  ['diffusion_2ec_30',['diffusion.c',['../diffusion_8c.html',1,'']]],
-  ['diffusion_2eh_31',['diffusion.h',['../diffusion_8h.html',1,'']]],
-  ['diffusion_5ffunction_5ft_32',['diffusion_function_t',['../diffusion_8h.html#af67f255516a7edf96bd483859c9da40d',1,'diffusion.h']]],
-  ['diffusion_5ftype_5ft_33',['diffusion_type_t',['../diffusion_8h.html#ab4db0a4247a119fca01c3f7a5e4dad59',1,'diffusion.h']]],
-  ['dx_34',['dx',['../structelement__size__t.html#a9eae6c1f38db98ab568f3ed3771a969d',1,'element_size_t']]],
-  ['dy_35',['dy',['../structelement__size__t.html#a8f461b6142ce8725218813abb23b06a3',1,'element_size_t']]]
+  ['diagonal_29',['diagonal',['../structSIMPLE__t.html#abb9005b61211826c1e99d319cb51aa2e',1,'SIMPLE_t']]],
+  ['diffusion_30',['diffusion',['../structschemes__t.html#aefbf0133de3eb08c664ebd7294dc2314',1,'schemes_t']]],
+  ['diffusion_2ec_31',['diffusion.c',['../diffusion_8c.html',1,'']]],
+  ['diffusion_2eh_32',['diffusion.h',['../diffusion_8h.html',1,'']]],
+  ['diffusion_5ffunction_5ft_33',['diffusion_function_t',['../diffusion_8h.html#af67f255516a7edf96bd483859c9da40d',1,'diffusion.h']]],
+  ['diffusion_5ftype_5ft_34',['diffusion_type_t',['../diffusion_8h.html#ab4db0a4247a119fca01c3f7a5e4dad59',1,'diffusion.h']]],
+  ['dx_35',['dx',['../structelement__size__t.html#a9eae6c1f38db98ab568f3ed3771a969d',1,'element_size_t']]],
+  ['dy_36',['dy',['../structelement__size__t.html#a8f461b6142ce8725218813abb23b06a3',1,'element_size_t']]]
 ];

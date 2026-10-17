@@ -57,7 +57,7 @@ var NAVTREEINDEX =
 "cJSON_8c.html#ac3aa973ef3f8d5a449b8f0cc822559c4",
 "convection_8h.html#a79682c10fc8b6c022f93f5753d37ca0f",
 "methods_8c.html#a434883fd5cd3fab6c624143513269628",
-"structprintbuffer.html#ae809d5359ac030c60a30a8f0b2294b82"
+"structprintbuffer.html#a809c2f4ac401c5813a479f13177496f4"
 ];
 
 var SYNCONMSG = 'click to disable panel synchronisation';

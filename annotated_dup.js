@@ -38,6 +38,7 @@ var annotated_dup =
     [ "scheme_diffusion_t", "structscheme__diffusion__t.html", "structscheme__diffusion__t" ],
     [ "schemes_t", "structschemes__t.html", "structschemes__t" ],
     [ "SIMPLE_Ap_coefficients_t", "structSIMPLE__Ap__coefficients__t.html", "structSIMPLE__Ap__coefficients__t" ],
+    [ "SIMPLE_diagonal_t", "structSIMPLE__diagonal__t.html", "structSIMPLE__diagonal__t" ],
     [ "SIMPLE_number_of_sweeps_t", "structSIMPLE__number__of__sweeps__t.html", "structSIMPLE__number__of__sweeps__t" ],
     [ "SIMPLE_residual_t", "structSIMPLE__residual__t.html", "structSIMPLE__residual__t" ],
     [ "SIMPLE_state_t", "structSIMPLE__state__t.html", "structSIMPLE__state__t" ],

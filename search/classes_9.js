@@ -10,9 +10,10 @@ var searchData=
   ['scheme_5fdiffusion_5ft_7',['scheme_diffusion_t',['../structscheme__diffusion__t.html',1,'']]],
   ['schemes_5ft_8',['schemes_t',['../structschemes__t.html',1,'']]],
   ['simple_5fap_5fcoefficients_5ft_9',['SIMPLE_Ap_coefficients_t',['../structSIMPLE__Ap__coefficients__t.html',1,'']]],
-  ['simple_5fnumber_5fof_5fsweeps_5ft_10',['SIMPLE_number_of_sweeps_t',['../structSIMPLE__number__of__sweeps__t.html',1,'']]],
-  ['simple_5fresidual_5ft_11',['SIMPLE_residual_t',['../structSIMPLE__residual__t.html',1,'']]],
-  ['simple_5fstate_5ft_12',['SIMPLE_state_t',['../structSIMPLE__state__t.html',1,'']]],
-  ['simple_5ft_13',['SIMPLE_t',['../structSIMPLE__t.html',1,'']]],
-  ['simple_5funder_5frelaxation_5ft_14',['SIMPLE_under_relaxation_t',['../structSIMPLE__under__relaxation__t.html',1,'']]]
+  ['simple_5fdiagonal_5ft_10',['SIMPLE_diagonal_t',['../structSIMPLE__diagonal__t.html',1,'']]],
+  ['simple_5fnumber_5fof_5fsweeps_5ft_11',['SIMPLE_number_of_sweeps_t',['../structSIMPLE__number__of__sweeps__t.html',1,'']]],
+  ['simple_5fresidual_5ft_12',['SIMPLE_residual_t',['../structSIMPLE__residual__t.html',1,'']]],
+  ['simple_5fstate_5ft_13',['SIMPLE_state_t',['../structSIMPLE__state__t.html',1,'']]],
+  ['simple_5ft_14',['SIMPLE_t',['../structSIMPLE__t.html',1,'']]],
+  ['simple_5funder_5frelaxation_5ft_15',['SIMPLE_under_relaxation_t',['../structSIMPLE__under__relaxation__t.html',1,'']]]
 ];
